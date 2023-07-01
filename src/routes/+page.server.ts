@@ -1,8 +1,7 @@
-import posts from '$lib/server/posts';
+import category from '$lib/server/db/category';
 
 export const load = async () => {
 	return {
-		posts: posts.getLatestPosts(),
-		snippet: 'Portfolio / Blog' // TODO: get from directus
+		categories: category.getAll()
 	};
 };

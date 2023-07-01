@@ -8,21 +8,21 @@ datasource db {
 }
 
 model Item {
-  id        String    @id @default(cuid())
-  name      String
-  poster    String?
-  completed Boolean   @default(false)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  subItem   SubItem[]
-  type      Type?     @relation(fields: [typeId], references: [id])
-  typeId    String?
-  itemTag   ItemTag[]
+  id         String    @id @default(cuid())
+  name       String
+  poster     String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  subItem    SubItem[]
+  category   Category? @relation(fields: [categoryId], references: [id])
+  categoryId String?
+  itemTag    ItemTag[]
 }
 
 model SubItem {
   id        String   @id @default(cuid())
   name      String
+  poster    String?
   completed Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -30,13 +30,13 @@ model SubItem {
   item      Item     @relation(fields: [itemId], references: [id])
 }
 
-model Type {
-  id         String   @id @default(cuid())
-  name       String
-  hasPosters Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  item       Item[]
+model Category {
+  id        String   @id @default(cuid())
+  name      String
+  poster    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  item      Item[]
 }
 
 model Tag {
@@ -70,8 +70,7 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }

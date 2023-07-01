@@ -1,5 +1,6 @@
 export const load = async ({ locals }) => {
 	return {
-		session: await locals.getSession()
+		session: await locals.getSession(),
+		snippet: 'Progress tracker'
 	};
 };
