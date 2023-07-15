@@ -1,6 +1,6 @@
 import db from '.';
 
-const getAll = async (categoryId: string) =>
+const getAll = async (/** @type {string} */ categoryId) =>
 	db.item.findMany({
 		select: {
 			id: true,
@@ -30,7 +30,7 @@ const getAll = async (categoryId: string) =>
 		}
 	});
 
-const get = async (id: string) =>
+const get = async (/** @type {string} */ id) =>
 	db.item.findUnique({
 		where: {
 			id

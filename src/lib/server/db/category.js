@@ -18,7 +18,7 @@ const getAll = async () =>
 		}
 	});
 
-const get = async (id: string) =>
+const get = async (/** @type {string} */ id) =>
 	db.category.findUnique({
 		where: {
 			id

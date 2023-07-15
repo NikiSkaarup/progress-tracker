@@ -9,7 +9,7 @@
 		{@const totalItems = item._count.subItem + item.subItem.length}
 		<a
 			href="/{data.categoryId}/{item.id}"
-			class="aspect-[3/4] flex justify-center items-center bg-cover bg-center bg-no-repeat lg:transition-[filter] lg:brightness-90 lg:hover:brightness-100 bg-slate-900"
+			class="aspect-[3/4] flex justify-center items-end bg-cover bg-center bg-no-repeat lg:transition-[filter] lg:brightness-90 lg:hover:brightness-100 bg-slate-900"
 			draggable="false"
 			style="background-image: url('{item.poster}');"
 		>

@@ -11,7 +11,7 @@ const getAll = async () =>
 		}
 	});
 
-const get = async (id: string) =>
+const get = async (/** @type {string} */ id) =>
 	db.tag.findUnique({
 		where: {
 			id

@@ -1,7 +1,8 @@
 import { env } from '$env/dynamic/private';
 import { Directus } from '@directus/sdk';
 
-const directus = new Directus<MyCollections>(env.DIRECTUS_URL);
+/** @type {import('@directus/sdk').Directus<MyCollections, import('@directus/sdk').Auth>} */
+const directus = new Directus(env.DIRECTUS_URL);
 
 async function getSlugs() {
 	const items = await directus.items('posts').readByQuery({
@@ -22,7 +23,7 @@ async function getLatestPosts() {
 	return items.data ?? [];
 }
 
-async function getPost(slug: string) {
+async function getPost(/** @type {string} */ slug) {
 	const item = await directus.items('posts').readByQuery({
 		filter: { slug },
 		fields: ['title', 'snippet', 'post_content.item.md'],

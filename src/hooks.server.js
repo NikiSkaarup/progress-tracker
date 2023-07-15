@@ -1,24 +1,26 @@
 import { SvelteKitAuth } from '@auth/sveltekit';
-import { PrismaAdapter } from '@auth/prisma-adapter';
+import authAdapter from '$lib/server/database/auth-adapter';
 import GitHub from '@auth/core/providers/github';
 import { sequence } from '@sveltejs/kit/hooks';
-import { redirect, type Handle } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
-import db from '$lib/server/db';
-import type { Provider } from '@auth/core/providers';
 import { dev } from '$app/environment';
+import database from '$lib/server/database';
 
-const authHandle: Handle = SvelteKitAuth({
-	adapter: PrismaAdapter(db),
-	providers: [
-		GitHub({
-			clientId: env.GITHUB_ID,
-			clientSecret: env.GITHUB_SECRET
-		}) as unknown as Provider
-	]
+/** @type {import('@auth/core/providers').Provider} */
+const githubProvider = GitHub({
+	clientId: env.GITHUB_ID,
+	clientSecret: env.GITHUB_SECRET
 });
 
-const authorization: Handle = async ({ event, resolve }) => {
+/** @type {import('@sveltejs/kit').Handle} */
+const authHandle = SvelteKitAuth({
+	adapter: authAdapter(database),
+	providers: [githubProvider]
+});
+
+/** @type {import('@sveltejs/kit').Handle} */
+const authorization = async ({ event, resolve }) => {
 	if (event.url.pathname.startsWith('/auth')) {
 		// Only allow access to the auth routes if the user is not logged in
 		return resolve(event);
@@ -33,8 +35,10 @@ const authorization: Handle = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-const preHandle: Handle = async ({ event, resolve }) => resolve(event);
-const postHandle: Handle = async ({ event, resolve }) => resolve(event);
+/** @type {import('@sveltejs/kit').Handle} */
+const preHandle = async ({ event, resolve }) => resolve(event);
+/** @type {import('@sveltejs/kit').Handle} */
+const postHandle = async ({ event, resolve }) => resolve(event);
 
 export const handle = sequence(preHandle, authHandle, authorization, postHandle);
 

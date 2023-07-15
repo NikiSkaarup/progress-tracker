@@ -1,6 +1,6 @@
 import db from '.';
 
-const getAll = async (itemId: string) =>
+const getAll = async (/** @type {string} */ itemId) =>
 	db.subItem.findMany({
 		select: {
 			id: true,
@@ -16,7 +16,7 @@ const getAll = async (itemId: string) =>
 		}
 	});
 
-const get = async (id: string) =>
+const get = async (/** @type {string} */ id) =>
 	db.subItem.findUnique({
 		where: {
 			id
