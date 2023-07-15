@@ -4,6 +4,14 @@ import { nanoid } from 'nanoid/async';
 
 /** @return { import("@auth/core/adapters").Adapter } */
 export default function (/** @type {import('better-sqlite3').Database} */ client) {
+	/** @typedef {{
+	 * id: string;
+	 * name: string | null;
+	 * email: string;
+	 * emailVerified: number | null;
+	 * image: string | null;
+	 * }} userRaw */
+
 	/** @type {import('better-sqlite3').Statement<{id: string; name: string | null | undefined; email: string; emailVerified: Date | null; image: string | null | undefined;}>} */
 	const createUser = client.prepare(
 		`INSERT INTO User (id, name, email, emailVerified, image) VALUES (@id, @name, @email, @emailVerified, @image)`
@@ -131,25 +139,57 @@ export default function (/** @type {import('better-sqlite3').Database} */ client
 			const userResult = getAdapterUserByRowId.get(res.lastInsertRowid.toString());
 			if (userResult === undefined) throw new Error('User not found');
 
-			return /** @type {import("@auth/core/adapters").AdapterUser} */ (userResult);
+			const user2 = /** @type {userRaw} */ (userResult);
+
+			return {
+				id: user2.id,
+				name: user2.name,
+				email: user2.email,
+				emailVerified: user2.emailVerified ? new Date(user2.emailVerified) : null,
+				image: user2.image
+			};
 		},
 		async getUser(id) {
 			const userResult = getAdapterUserById.get(id);
 			if (userResult === undefined) return null;
 
-			return /** @type {import("@auth/core/adapters").AdapterUser} */ (userResult);
+			const user = /** @type {userRaw} */ (userResult);
+
+			return {
+				id: user.id,
+				name: user.name,
+				email: user.email,
+				emailVerified: user.emailVerified ? new Date(user.emailVerified) : null,
+				image: user.image
+			};
 		},
 		async getUserByEmail(email) {
 			const userResult = getAdapterUserByEmail.get(email);
 			if (userResult === undefined) return null;
 
-			return /** @type {import("@auth/core/adapters").AdapterUser} */ (userResult);
+			const user = /** @type {userRaw} */ (userResult);
+
+			return {
+				id: user.id,
+				name: user.name,
+				email: user.email,
+				emailVerified: user.emailVerified ? new Date(user.emailVerified) : null,
+				image: user.image
+			};
 		},
 		async getUserByAccount({ providerAccountId, provider }) {
 			const userResult = getAdapterUserByAccount.get({ providerAccountId, provider });
 			if (userResult === undefined) return null;
 
-			return /** @type {import("@auth/core/adapters").AdapterUser} */ (userResult);
+			const user = /** @type {userRaw} */ (userResult);
+
+			return {
+				id: user.id,
+				name: user.name,
+				email: user.email,
+				emailVerified: user.emailVerified ? new Date(user.emailVerified) : null,
+				image: user.image
+			};
 		},
 		async updateUser(user) {
 			if (user.id === undefined) throw new Error('User id is undefined');
@@ -204,10 +244,16 @@ export default function (/** @type {import('better-sqlite3').Database} */ client
 			const userResult = getAdapterUserById.get(session.userId);
 			if (userResult === undefined) return null;
 
-			const user = /** @type {import("@auth/core/adapters").AdapterUser} */ (userResult);
+			const user = /** @type {userRaw} */ (userResult);
 
 			return {
-				user,
+				user: {
+					id: user.id,
+					name: user.name,
+					email: user.email,
+					emailVerified: user.emailVerified ? new Date(user.emailVerified) : null,
+					image: user.image
+				},
 				session: {
 					sessionToken: session.sessionToken,
 					userId: session.userId,
