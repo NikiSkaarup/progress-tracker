@@ -1,7 +1,5 @@
 import { nanoid } from 'nanoid/async';
 
-/** @typedef {{id: string; name: string?; email: string?; emailVerified: Date?; image: string?;}} UserResult */
-
 /** @return { import("@auth/core/adapters").Adapter } */
 export default function (/** @type {import('better-sqlite3').Database} */ client) {
 	/** @typedef {{
@@ -203,7 +201,15 @@ export default function (/** @type {import('better-sqlite3').Database} */ client
 			});
 			const userResult = getAdapterUserByRowId.get(res.lastInsertRowid.toString());
 
-			return /** @type {import("@auth/core/adapters").AdapterUser} */ (userResult);
+			const user2 = /** @type {userRaw} */ (userResult);
+
+			return {
+				id: user2.id,
+				name: user2.name,
+				email: user2.email,
+				emailVerified: user2.emailVerified ? new Date(user2.emailVerified) : null,
+				image: user2.image
+			};
 		},
 		async deleteUser(userId) {
 			deleteUser.run(userId);
