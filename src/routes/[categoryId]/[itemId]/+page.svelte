@@ -1,28 +1,33 @@
 <script lang="ts">
+	import MyBackgroundImage from '$lib/components/ui/mine/my-background-image.svelte';
+
 	export let data;
 </script>
 
 <div
 	class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 container mx-auto py-4 px-4 lg:px-0"
 >
-	{#each data.subItems as subitem (subitem.id)}
+	{#each data.subItems as subItem (subItem.id)}
 		<a
-			href="/{data.categoryId}/{data.itemId}/{subitem.id}"
-			class="aspect-[3/4] flex justify-center items-end bg-cover bg-center bg-no-repeat lg:transition-[filter] lg:brightness-90 lg:hover:brightness-100 bg-slate-900"
+			href="/{data.categoryId}/{data.itemId}/{subItem.id}"
+			class="relative aspect-[3/4] flex justify-center items-end bg-slate-900"
 			draggable="false"
-			style="background-image: url('{subitem.poster}');"
 		>
+			<MyBackgroundImage url={subItem.poster} grayscale={!subItem.completed} />
 			<div
 				class="flex flex-col items-center gap-1 w-full backdrop-blur-md backdrop-brightness-75 py-2"
 			>
 				<span class="text-2xl">
-					{subitem.name}
+					{subItem.name}
 				</span>
-				{#if subitem.completed}
-					<span> completed </span>
-				{:else}
-					<span class="text-sm"> incomplete </span>
-				{/if}
+
+				<span>
+					{#if subItem.completed}
+						completed
+					{:else}
+						incomplete
+					{/if}
+				</span>
 			</div>
 		</a>
 	{:else}

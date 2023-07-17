@@ -1,4 +1,4 @@
-import category from '$lib/server/db/category';
+import category from '$lib/server/database/category';
 
 export const load = async () => {
 	return {

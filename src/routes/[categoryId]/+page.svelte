@@ -1,4 +1,6 @@
 <script lang="ts">
+	import MyBackgroundImage from '$lib/components/ui/mine/my-background-image.svelte';
+
 	export let data;
 </script>
 
@@ -6,29 +8,31 @@
 	class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4 container mx-auto py-4 px-4 lg:px-0"
 >
 	{#each data.items as item (item.id)}
-		{@const totalItems = item._count.subItem + item.subItem.length}
 		<a
 			href="/{data.categoryId}/{item.id}"
-			class="aspect-[3/4] flex justify-center items-end bg-cover bg-center bg-no-repeat lg:transition-[filter] lg:brightness-90 lg:hover:brightness-100 bg-slate-900"
+			class="relative aspect-[3/4] flex justify-center items-end bg-slate-900"
 			draggable="false"
-			style="background-image: url('{item.poster}');"
 		>
+			<MyBackgroundImage
+				url={item.poster}
+				grayscale={item.subItemsCompleted !== item.subItems}
+			/>
 			<div
 				class="flex flex-col items-center gap-1 w-full backdrop-blur-md backdrop-brightness-75 py-2"
 			>
 				<span class="text-2xl">
 					{item.name}
 				</span>
-				{#if totalItems === 0}
-					<span> no subitems </span>
-				{:else if item._count.subItem === totalItems}
-					<span> completed </span>
-				{:else}
-					<span class="text-sm">
-						<span class="font-mono">{item._count.subItem}</span> of
-						<span class="font-mono">{totalItems}</span> completed
-					</span>
-				{/if}
+				<span>
+					{#if item.subItems === 0}
+						no subitems
+					{:else if item.subItemsCompleted === item.subItems}
+						completed
+					{:else}
+						<span class="font-mono text-sm">{item.subItemsCompleted}</span> of
+						<span class="font-mono text-sm">{item.subItems}</span> completed
+					{/if}
+				</span>
 			</div>
 		</a>
 	{:else}

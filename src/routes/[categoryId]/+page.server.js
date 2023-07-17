@@ -1,4 +1,4 @@
-import item from '$lib/server/db/item';
+import item from '$lib/server/database/item';
 
 export const load = async ({ params }) => {
 	return {

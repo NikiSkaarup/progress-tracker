@@ -1,5 +1,4 @@
 /* eslint-disable no-var */
-import { type PrismaClient } from '@prisma/client';
 import type Database from 'better-sqlite3';
 
 declare global {
@@ -12,7 +11,6 @@ declare global {
 		// interface Platform {}
 	}
 
-	var client: PrismaClient;
 	var dbClient: Database;
 }
 

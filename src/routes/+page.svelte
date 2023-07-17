@@ -18,11 +18,11 @@
 				<span class="text-2xl">
 					{category.name}
 				</span>
-				{#if category._count.item === 0}
+				{#if category.items === 0}
 					<span> no items </span>
 				{:else}
 					<span class="text-sm">
-						<span class="font-mono">{category._count.item}</span> items
+						<span class="font-mono">{category.items}</span> items
 					</span>
 				{/if}
 			</div>

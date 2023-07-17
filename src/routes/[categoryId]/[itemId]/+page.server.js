@@ -1,4 +1,4 @@
-import subItem from '$lib/server/db/sub-item';
+import subItem from '$lib/server/database/sub-item';
 
 export const load = async ({ params }) => {
 	return {
