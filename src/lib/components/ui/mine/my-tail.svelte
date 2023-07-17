@@ -8,7 +8,7 @@
 </script>
 
 {#if $page.data.session}
-	<button type="button" class="trigger" {...$trigger} use:trigger aria-label="Update dimensions">
+	<button type="button" class="trigger" melt={$trigger} aria-label="Update dimensions">
 		{#if $page.data.session.user?.image}
 			<MyAvatar id="avatar" src={$page.data.session.user.image} />
 		{:else}
@@ -23,17 +23,16 @@
 
 <div
 	class="menu z-30 flex max-h-[300px] min-w-fit flex-col shadow-lg shadow-neutral-900/30 rounded-md p-1 lg:max-h-none"
-	{...$menu}
-	use:menu
+	melt={$menu}
 >
 	<div
 		class="item cursor-pointer select-none rounded-sm pl-6 pr-6 h-[25px] min-h-[25px] flex items-center text-sm leading-none"
-		{...item}
+		melt={$item}
 		use:item={{ onSelect: () => signOut() }}
 	>
 		Sign out
 	</div>
-	<div {...$arrow} />
+	<div melt={$arrow} />
 </div>
 
 <style lang="postcss">
