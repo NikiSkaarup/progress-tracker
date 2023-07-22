@@ -2,7 +2,10 @@
 	import { page } from '$app/stores';
 
 	const titleBase = 'Niki Wix Skaarup';
-	$: title = $page.url.pathname === '/' ? titleBase : `${titleBase} - ${$page.data.title}`;
+	$: title =
+		$page.url.pathname === '/' || $page.data.title === undefined
+			? titleBase
+			: `${titleBase} - ${$page.data.title}`;
 	$: description = $page.data.snippet ?? '';
 	$: image = $page.data.image ?? '';
 </script>

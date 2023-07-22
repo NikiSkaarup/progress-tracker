@@ -6,14 +6,13 @@ import { redirect } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { dev } from '$app/environment';
 import database from '$lib/server/database';
+import { nanoid } from 'nanoid/async';
 
-/** @type {import('@auth/core/providers').Provider} */
 const githubProvider = GitHub({
 	clientId: env.GITHUB_ID,
 	clientSecret: env.GITHUB_SECRET
 });
 
-/** @type {import('@sveltejs/kit').Handle} */
 const authHandle = SvelteKitAuth({
 	adapter: authAdapter(database),
 	providers: [githubProvider]
@@ -35,10 +34,54 @@ const authorization = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
+/** @type {Map<string, number>} */
+const startTimes = new Map();
+
 /** @type {import('@sveltejs/kit').Handle} */
-const preHandle = async ({ event, resolve }) => resolve(event);
+const preHandle = async ({ event, resolve }) => {
+	event.locals.requestId = await nanoid();
+	startTimes.set(event.locals.requestId, performance.now());
+
+	return resolve(event);
+};
+
+const fgGray = '\x1b[90m';
+const fgYellow = '\x1b[33m';
+const fgRed = '\x1b[31m';
+const fgGreen = '\x1b[32m';
+const fgTeal = '\x1b[36m';
+const reset = '\x1b[0m';
+
+function goodOrBad(/** @type {number} */ duration) {
+	return `${
+		duration >= 0
+			? ' took ' + (duration > 16 ? fgRed : fgGreen) + duration.toFixed(3) + fgYellow + 'ms'
+			: ''
+	}`;
+}
+
+function createMessage(
+	/** @type {string} */ requestId,
+	/** @type {number} */ duration,
+	/** @type {unknown} */ err = null
+) {
+	return `${fgTeal}request ${fgGreen}${requestId}${fgGray}${goodOrBad(duration)}${
+		err ? ` - ${fgRed}${err}${reset}` : reset
+	}`;
+}
+
 /** @type {import('@sveltejs/kit').Handle} */
-const postHandle = async ({ event, resolve }) => resolve(event);
+const postHandle = async ({ event, resolve }) => {
+	const start = startTimes.get(event.locals.requestId);
+
+	if (start) {
+		const message = createMessage(event.locals.requestId, performance.now() - start);
+		console.info(message);
+		startTimes.delete(event.locals.requestId);
+	}
+
+	return resolve(event);
+};
 
 export const handle = sequence(preHandle, authHandle, authorization, postHandle);
 
@@ -47,20 +90,30 @@ export const handleFetch = async ({ request, fetch }) => {
 };
 
 export const handleError = async ({ error, event }) => {
-	let message = 'Unknown error';
+	let msg = 'Unknown error';
 
 	if (typeof error === 'string') {
-		message = error;
+		msg = error;
 	} else if (error instanceof Error) {
-		message = error.message;
+		msg = error.message;
 	}
 
 	if (dev) {
-		console.log('Error:', event.request.url);
 		console.error(error);
 	}
 
+	if (event.locals.requestId) {
+		const start = startTimes.get(event.locals.requestId) ?? -1;
+		const message = createMessage(
+			event.locals.requestId,
+			start > 0 ? performance.now() - start : -1,
+			error
+		);
+		console.error(message);
+		startTimes.delete(event.locals.requestId);
+	}
+
 	return {
-		message
+		message: msg
 	};
 };

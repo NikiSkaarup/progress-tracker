@@ -3,7 +3,9 @@ import type Database from 'better-sqlite3';
 
 declare global {
 	namespace App {
-		// interface Locals {}
+		interface Locals {
+			requestId: string;
+		}
 		// interface PageData {}
 		interface Error {
 			message: string;
