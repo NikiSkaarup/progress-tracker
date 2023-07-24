@@ -42,6 +42,10 @@ const preHandle = async ({ event, resolve }) => {
 	event.locals.requestId = await nanoid();
 	startTimes.set(event.locals.requestId, performance.now());
 
+	event.cookies.set('requestId', event.locals.requestId, {
+		path: '/'
+	});
+
 	return resolve(event);
 };
 
@@ -53,11 +57,9 @@ const fgTeal = '\x1b[36m';
 const reset = '\x1b[0m';
 
 function goodOrBad(/** @type {number} */ duration) {
-	return `${
-		duration >= 0
-			? ' took ' + (duration > 16 ? fgRed : fgGreen) + duration.toFixed(3) + fgYellow + 'ms'
-			: ''
-	}`;
+	if (isNaN(duration) || duration < 0) return '';
+
+	return `took ${duration > 16 ? fgRed : fgGreen}${duration.toFixed(3)}${fgYellow}ms`;
 }
 
 function createMessage(
@@ -65,9 +67,13 @@ function createMessage(
 	/** @type {number} */ duration,
 	/** @type {unknown} */ err = null
 ) {
-	return `${fgTeal}request ${fgGreen}${requestId}${fgGray}${goodOrBad(duration)}${
-		err ? ` - ${fgRed}${err}${reset}` : reset
-	}`;
+	const base = `${fgTeal}request ${fgGreen}${requestId}`;
+
+	if (err instanceof Error || typeof err === 'string' || err !== null) {
+		return `${base} ${fgGray}- ${fgRed}${err}${reset}`;
+	}
+
+	return `${base} ${fgGray}${goodOrBad(duration)}${reset}`;
 }
 
 /** @type {import('@sveltejs/kit').Handle} */
@@ -99,7 +105,7 @@ export const handleError = async ({ error, event }) => {
 	}
 
 	if (dev) {
-		console.error(error);
+		console.error(`${fgTeal}request ${fgGreen}${event.locals.requestId}${reset}`, error);
 	}
 
 	if (event.locals.requestId) {
