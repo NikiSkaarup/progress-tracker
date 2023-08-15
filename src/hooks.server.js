@@ -34,13 +34,10 @@ const authorization = async ({ event, resolve }) => {
 	return resolve(event);
 };
 
-/** @type {Map<string, number>} */
-const startTimes = new Map();
-
 /** @type {import('@sveltejs/kit').Handle} */
 const preHandle = async ({ event, resolve }) => {
+	event.locals.requestStart = performance.now();
 	event.locals.requestId = await nanoid();
-	startTimes.set(event.locals.requestId, performance.now());
 
 	event.cookies.set('requestId', event.locals.requestId, {
 		path: '/'
@@ -78,13 +75,11 @@ function createMessage(
 
 /** @type {import('@sveltejs/kit').Handle} */
 const postHandle = async ({ event, resolve }) => {
-	const start = startTimes.get(event.locals.requestId);
-
-	if (start) {
-		const message = createMessage(event.locals.requestId, performance.now() - start);
-		console.info(message);
-		startTimes.delete(event.locals.requestId);
-	}
+	const message = createMessage(
+		event.locals.requestId,
+		performance.now() - event.locals.requestStart
+	);
+	console.info(message);
 
 	return resolve(event);
 };
@@ -109,14 +104,12 @@ export const handleError = async ({ error, event }) => {
 	}
 
 	if (event.locals.requestId) {
-		const start = startTimes.get(event.locals.requestId) ?? -1;
 		const message = createMessage(
 			event.locals.requestId,
-			start > 0 ? performance.now() - start : -1,
+			performance.now() - event.locals.requestStart,
 			error
 		);
 		console.error(message);
-		startTimes.delete(event.locals.requestId);
 	}
 
 	return {

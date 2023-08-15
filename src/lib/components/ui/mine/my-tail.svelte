@@ -2,17 +2,23 @@
 	import { page } from '$app/stores';
 	import { signIn, signOut } from '@auth/sveltekit/client';
 	import MyAvatar from './my-avatar.svelte';
-	import { createDropdownMenu } from '@melt-ui/svelte';
+	import { createDropdownMenu, melt } from '@melt-ui/svelte';
 
-	const { trigger, menu, item, arrow, separator } = createDropdownMenu();
+	// const { trigger, menu, item, arrow, separator } = createDropdownMenu();
+	const {
+		elements: { trigger, menu, item, arrow }
+	} = createDropdownMenu();
+
+	$: session = $page.data.session;
 </script>
 
-{#if $page.data.session}
-	<button type="button" class="trigger" melt={$trigger} aria-label="Update dimensions">
-		{#if $page.data.session.user?.image}
-			<MyAvatar id="avatar" src={$page.data.session.user.image} />
+{#if session}
+	{@const src = session.user?.image}
+	<button type="button" class="trigger" use:melt={$trigger} aria-label="Update dimensions">
+		{#if src}
+			<MyAvatar id="avatar" {src} />
 		{:else}
-			<span class="h-12 w-12 flex justify-center items-center bg-gray-500 rounded-full">
+			<span class="flex h-12 w-12 items-center justify-center rounded-full bg-gray-500">
 				|||
 			</span>
 		{/if}
@@ -22,23 +28,23 @@
 {/if}
 
 <div
-	class="menu z-30 flex max-h-[300px] min-w-fit flex-col shadow-lg shadow-neutral-900/30 rounded-md p-1 lg:max-h-none"
-	melt={$menu}
+	class="menu z-30 flex max-h-[300px] min-w-fit flex-col rounded-md p-1 shadow-lg shadow-neutral-900/30 lg:max-h-none"
+	use:melt={$menu}
 >
 	<div
-		class="item cursor-pointer select-none rounded-sm pl-6 pr-6 h-[25px] min-h-[25px] flex items-center text-sm leading-none"
-		melt={$item}
-		use:item={{ onSelect: () => signOut() }}
+		class="item flex h-[25px] min-h-[25px] cursor-pointer select-none items-center rounded-sm pl-6 pr-6 text-sm leading-none"
+		use:melt={$item}
+		on:m-click={() => signOut()}
 	>
 		Sign out
 	</div>
-	<div melt={$arrow} />
+	<div use:melt={$arrow} />
 </div>
 
 <style lang="postcss">
 	.menu {
 		color: rgb(240 244 250);
-		background-color: rgb(30 27 75);
+		background-color: rgb(50 47 95);
 	}
 	.item {
 		color: rgb(240 244 250);

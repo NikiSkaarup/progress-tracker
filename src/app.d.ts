@@ -5,6 +5,7 @@ declare global {
 	namespace App {
 		interface Locals {
 			requestId: string;
+			requestStart: number;
 		}
 		// interface PageData {}
 		interface Error {
